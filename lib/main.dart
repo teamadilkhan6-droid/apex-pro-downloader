@@ -24,6 +24,13 @@ class ApexProApp extends StatelessWidget {
   }
 }
 
+class DownloadItem {
+  final String url;
+  final String status;
+  final String time;
+  DownloadItem({required this.url, required this.status, required this.time});
+}
+
 class DownloadHomeScreen extends StatefulWidget {
   const DownloadHomeScreen({Key? key}) : super(key: key);
 
@@ -33,17 +40,20 @@ class DownloadHomeScreen extends StatefulWidget {
 
 class _DownloadHomeScreenState extends State<DownloadHomeScreen> {
   final TextEditingController _urlController = TextEditingController();
-  final List> _downloads = [];
+  final List<DownloadItem> _downloads = [];
 
   void _addDownload() {
     final String url = _urlController.text.trim();
     if (url.isNotEmpty) {
       setState(() {
-        _downloads.insert(0, {
-          'url': url,
-          'status': 'Queued / Monitoring...',
-          'time': DateTime.now().toString().substring(11, 16),
-        });
+        _downloads.insert(
+          0,
+          DownloadItem(
+            url: url,
+            status: 'Queued / Monitoring...',
+            time: DateTime.now().toString().substring(11, 16),
+          ),
+        );
         _urlController.clear();
       });
       ScaffoldMessenger.of(context).showSnackBar(
@@ -119,12 +129,12 @@ class _DownloadHomeScreenState extends State<DownloadHomeScreen> {
                           child: ListTile(
                             leading: const Icon(Icons.cloud_download, color: Colors.amber),
                             title: Text(
-                              item['url']!,
+                              item.url,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            subtitle: Text('${item['status']} • ${item['time']}'),
+                            subtitle: Text('${item.status} • ${item.time}'),
                             trailing: const Icon(Icons.hourglass_top, color: Colors.orange),
                           ),
                         );
