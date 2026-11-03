@@ -24,6 +24,9 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Generate Android Template Files
+        run: flutter create . --org com.apexpro.autodownloader --project-name apex_pro_downloader --platforms=android
+
       - name: Install Dependencies
         run: flutter pub get
 
