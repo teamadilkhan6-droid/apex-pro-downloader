@@ -1,3 +1,11 @@
+name: apex_pro_downloader
+description: "A high-performance auto downloader app"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
 dependencies:
   flutter:
     sdk: flutter
@@ -5,4 +13,12 @@ dependencies:
   shared_preferences: ^2.2.2
   path_provider: ^2.1.2
   permission_handler: ^11.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
   
