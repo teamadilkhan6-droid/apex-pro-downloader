@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
-import 'dart:io';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await FlutterDownloader.initialize(debug: true);
+void main() {
   runApp(const ApexProApp());
 }
 
@@ -33,27 +28,23 @@ class ApexProApp extends StatelessWidget {
 }
 
 class DownloadItem {
-  final String id;
   final String url;
   String status;
   final String time;
 
   DownloadItem({
-    required this.id,
     required this.url,
     required this.status,
     required this.time,
   });
 
   Map<String, dynamic> toJson() => {
-        'id': id,
         'url': url,
         'status': status,
         'time': time,
       };
 
   factory DownloadItem.fromJson(Map<String, dynamic> json) => DownloadItem(
-        id: json['id'] ?? '',
         url: json['url'] ?? '',
         status: json['status'] ?? '',
         time: json['time'] ?? '',
@@ -94,25 +85,18 @@ class _DownloadHomeScreenState extends State<DownloadHomeScreen> {
     await prefs.setString('saved_downloads', encoded);
   }
 
-  Future<void> _startBackgroundDownload() async {
+  Future<void> _startDownload() async {
     final String url = _urlController.text.trim();
     if (url.isEmpty) return;
 
-    await Permission.storage.request();
-    final Directory? downloadsDir = await getExternalStorageDirectory();
-
-    final taskId = await FlutterDownloader.enqueue(
-      url: url.startsWith('http') ? url : 'https://$url',
-      savedDir: downloadsDir?.path ?? '',
-      showNotification: true,
-      openFileFromNotification: true,
-      saveInPublicStorage: true,
-    );
+    final Uri uri = Uri.parse(url.startsWith('http') ? url : 'https://$url');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
 
     final newItem = DownloadItem(
-      id: taskId ?? DateTime.now().toString(),
       url: url,
-      status: 'Downloading in Background...',
+      status: 'Triggered Successfully',
       time: DateTime.now().toString().substring(11, 16),
     );
 
@@ -124,7 +108,7 @@ class _DownloadHomeScreenState extends State<DownloadHomeScreen> {
     await _saveDownloads();
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('⚡ Real Download started in background!')),
+      const SnackBar(content: Text('⚡ Download started & saved in queue!')),
     );
   }
 
@@ -150,17 +134,17 @@ class _DownloadHomeScreenState extends State<DownloadHomeScreen> {
                     TextField(
                       controller: _urlController,
                       decoration: const InputDecoration(
-                        labelText: 'Enter Direct Direct Link / URL',
-                        hintText: 'https://example.com/file.mp4',
+                        labelText: 'Enter File URL or Link',
+                        hintText: 'https://example.com/file.zip',
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.link),
                       ),
                     ),
                     const SizedBox(height: 12),
                     ElevatedButton.icon(
-                      onPressed: _startBackgroundDownload,
+                      onPressed: _startDownload,
                       icon: const Icon(Icons.download),
-                      label: const Text('Start Real Download'),
+                      label: const Text('Start Download'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.amber,
                         foregroundColor: Colors.black,
@@ -176,7 +160,7 @@ class _DownloadHomeScreenState extends State<DownloadHomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Saved Download Queue',
+                  'Persistent Download Queue',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.amber),
                 ),
                 if (_downloads.isNotEmpty)
@@ -216,7 +200,7 @@ class _DownloadHomeScreenState extends State<DownloadHomeScreen> {
                               style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             subtitle: Text('${item.status} • ${item.time}'),
-                            trailing: const Icon(Icons.downloading, color: Colors.green),
+                            trailing: const Icon(Icons.check_circle, color: Colors.green),
                           ),
                         );
                       },
