@@ -14,7 +14,7 @@ class ApexProApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
         primaryColor: Colors.amber,
-        colorScheme: ColorScheme.dark(
+        colorScheme: const ColorScheme.dark(
           primary: Colors.amber,
           secondary: Colors.amberAccent,
         ),
@@ -28,7 +28,7 @@ class DownloadHomeScreen extends StatefulWidget {
   const DownloadHomeScreen({Key? key}) : super(key: key);
 
   @override
-  _DownloadHomeScreenState createState() => _DownloadHomeScreenState();
+  State<DownloadHomeScreen> createState() => _DownloadHomeScreenState();
 }
 
 class _DownloadHomeScreenState extends State<DownloadHomeScreen> {
@@ -64,7 +64,6 @@ class _DownloadHomeScreenState extends State<DownloadHomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // URL Input Card
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -102,7 +101,6 @@ class _DownloadHomeScreenState extends State<DownloadHomeScreen> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.amber),
             ),
             const SizedBox(height: 10),
-            // Downloads List
             Expanded(
               child: _downloads.isEmpty
                   ? const Center(
